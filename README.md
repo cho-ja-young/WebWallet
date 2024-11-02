@@ -1,3 +1,14 @@
+# Web 3.0 Wallet
+
+1. node.js 설치 후, react 모듈 설치
+2. npm install react react-dom
+3. npx create-react-app wallet-app
+4. cd wallet-app
+5. npm start
+6. npm install web3
+7. 제공된 main.html 을 app.js, app.css 로 변환 후 적용
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
