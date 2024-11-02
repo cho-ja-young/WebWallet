@@ -8,6 +8,8 @@ function App() {
   const [balance, setBalance] = useState('');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
+  const [gas, setGas] = useState('21000'); // 기본 가스 값 설정
+  const [gasPrice, setGasPrice] = useState('20000000000'); // 기본 가스 가격 설정 (20 Gwei)
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -46,6 +48,8 @@ function App() {
     setBalance('');
     setRecipient('');
     setAmount('');
+    setGas('21000');
+    setGasPrice('20000000000');
     setIsConnected(false);
     setWeb3(null);
   };
@@ -75,6 +79,8 @@ function App() {
         from: account,
         to: recipient,
         value: web3.utils.toWei(amount, 'ether'),
+        gas: gas, // 설정한 gas 사용
+        gasPrice: gasPrice, // 설정한 gasPrice 사용
       });
       alert('Transaction Sent!');
     } catch (error) {
@@ -120,6 +126,18 @@ function App() {
           placeholder="Amount to Send"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Gas Limit"
+          value={gas}
+          onChange={(e) => setGas(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Gas Price (in wei)"
+          value={gasPrice}
+          onChange={(e) => setGasPrice(e.target.value)}
         />
         <button onClick={sendTransaction}>Send Transaction</button>
       </div>
