@@ -8,7 +8,12 @@ function App() {
   const [balance, setBalance] = useState('');
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
+  const [gas, setGas] = useState('21000');
+  const [gasPrice, setGasPrice] = useState('20000000000');
   const [isConnected, setIsConnected] = useState(false);
+  const [transactionHistory, setTransactionHistory] = useState([]);
+
+  const infuraUrl = 'https://polygon-mumbai.infura.io/v3/YOUR_INFURA_PROJECT_ID'; // Replace with your Infura Project ID
 
   useEffect(() => {
     if (window.ethereum) {
@@ -46,8 +51,11 @@ function App() {
     setBalance('');
     setRecipient('');
     setAmount('');
+    setGas('21000');
+    setGasPrice('20000000000');
     setIsConnected(false);
     setWeb3(null);
+    setTransactionHistory([]);
   };
 
   const getBalance = async () => {
@@ -75,6 +83,8 @@ function App() {
         from: account,
         to: recipient,
         value: web3.utils.toWei(amount, 'ether'),
+        gas: gas,
+        gasPrice: gasPrice,
       });
       alert('Transaction Sent!');
     } catch (error) {
@@ -83,8 +93,29 @@ function App() {
     }
   };
 
-  const getTransactionHistory = () => {
-    alert('Transaction history function placeholder.');
+  const getTransactionHistory = async () => {
+    if (!account) {
+      alert('Please connect your wallet first.');
+      return;
+    }
+
+    try {
+      const web3Infura = new Web3(new Web3.providers.HttpProvider(infuraUrl));
+      const transactionCount = await web3Infura.eth.getTransactionCount(account);
+      const transactions = [];
+
+      for (let i = 0; i < transactionCount; i++) {
+        const tx = await web3Infura.eth.getTransactionFromBlock(account, i);
+        if (tx) {
+          transactions.push(tx);
+        }
+      }
+
+      setTransactionHistory(transactions);
+    } catch (error) {
+      console.error('Error fetching transaction history:', error);
+      alert('Could not fetch transaction history.');
+    }
   };
 
   return (
@@ -121,6 +152,18 @@ function App() {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
+        <input
+          type="text"
+          placeholder="Gas Limit"
+          value={gas}
+          onChange={(e) => setGas(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Gas Price (in wei)"
+          value={gasPrice}
+          onChange={(e) => setGasPrice(e.target.value)}
+        />
         <button onClick={sendTransaction}>Send Transaction</button>
       </div>
 
@@ -128,7 +171,19 @@ function App() {
         <h2>Transaction History</h2>
         <button onClick={getTransactionHistory}>View Transaction History</button>
         <ul>
-          <li>Transaction history function placeholder.</li>
+          {transactionHistory.length > 0 ? (
+            transactionHistory.map((tx, index) => (
+              <li key={index}>
+                <p>Hash: {tx.hash}</p>
+                <p>From: {tx.from}</p>
+                <p>To: {tx.to}</p>
+                <p>Value: {web3.utils.fromWei(tx.value, 'ether')} ETH</p>
+                <hr />
+              </li>
+            ))
+          ) : (
+            <li>No transactions found.</li>
+          )}
         </ul>
       </div>
     </div>
